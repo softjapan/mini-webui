@@ -2,6 +2,10 @@
 
 mini-webui delivers a streamlined AI chat console for teams that need rapid iteration, reliable integrations, and production-ready guardrails. The application pairs a FastAPI backend with a SvelteKit front end, offering real-time conversations, LangGraph-powered retrieval, secure account management, and an operator-friendly admin console.
 
+
+https://github.com/user-attachments/assets/4e91e276-55de-4364-a776-e358e48404d1
+
+
 ---
 
 ## Key Capabilities
