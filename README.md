@@ -44,6 +44,38 @@ mini-webui_src/
 The backend exposes REST + Server-Sent Events; the SvelteKit client consumes the same interface for both guest and authenticated users. Admin tooling is served from `/admin`, with profile management under `/profile`.
 
 ---
+## System Architecture Diagram
+```mermaid
+flowchart LR
+    User[Browser User] --> FE[SvelteKit Frontend\nsrc/routes & src/lib/apis/client.ts]
+    subgraph Frontend
+        FE -->|REST fetch /api/...| API[(API Client)]
+        FE -->|SSE listen| SSE[Chat/RAG Streams]
+    end
+
+    FE -->|HTTP/SSE| BE[FastAPI App\nbackend/mini_webui/main.py]
+
+    subgraph Backend
+        BE --> AUTH[Auth Router\n/api/auth/*]
+        BE --> CHATS[Chats Router\n/api/chats/* & guest stream]
+        BE --> ADMIN[Admin Router\n/api/admin/*]
+        BE --> OPENAI[OpenAI Proxy\n/api/openai/chat]
+        BE --> RAG[RAG Router\n/api/rag/query, /stream]
+        BE --> DB[(SQLAlchemy ORM\nusers, chats, messages, settings)]
+    end
+
+    RAG --> RAGSRV[LangGraph Pipeline\nrag/service.py, graph.py]
+    RAGSRV --> STORE[(FAISS Index\n/data/rag_index)]
+    RAGSRV --> OA[(OpenAI API\nembeddings + completion)]
+    CHATS --> OA
+    OPENAI --> OA
+    scripts[CLI Scripts\ningest_rag.py, create_admin.py] --> STORE
+    adminPanel[Admin UI\nsrc/routes/app/admin] --> ADMIN
+    profileUI[Profile UI\nsrc/routes/app/profile] --> AUTH
+
+    BE -. serves built SPA .-> static[Static build/\nfor single origin deploy]
+```
+
 
 ## Technology Stack
 
